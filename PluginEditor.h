@@ -21,6 +21,8 @@ public:
         setColour(juce::Slider::thumbColourId, juce::Colours::antiquewhite);
         setColour(juce::Slider::trackColourId, (juce::Colours::cyan).withBrightness(0.8)); // You should really change the saturation on this..        setColour(juce::Label::textColourId, juce::Colours::cyan);
 
+        setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentWhite);
+
         setColour(juce::TextButton::textColourOnId, juce::Colours::cyan);
         setColour(juce::TextButton::textColourOffId, juce::Colours::white);
         setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
@@ -28,7 +30,7 @@ public:
 
         setColour(juce::ToggleButton::tickColourId, juce::Colours::orange);
 
-        setColour(juce::GroupComponent::outlineColourId, juce::Colours::transparentWhite);
+        setDefaultSansSerifTypefaceName("Avenir Next");
         
 
     }
@@ -95,26 +97,29 @@ public:
         if (slider.isBar())
         {
             // creates shadow
-            auto sliderArea = slider.getLocalBounds();
-            auto edge = 5;
+            auto shadowArea = slider.getLocalBounds();
+            auto edge = 2;
 
             //sliderArea.removeFromLeft(edge);
             //sliderArea.removeFromTop(edge);
-            sliderArea.translate(-edge, edge);
+            shadowArea.translate(0, edge);
 
             // shadow
             g.setColour(juce::Colours::darkgrey.withAlpha(0.5f));
-            g.fillRect(sliderArea);
+            g.fillRect(shadowArea.withTrimmedRight(edge*4));
 
 
             // acutal bar with gradient
             g.setColour(slider.findColour(Slider::trackColourId));
 
+            x += edge;
+            y -= edge;
+
             auto gradient = new FillType();
             (*gradient).setGradient(*(new ColourGradient(juce::Colours::white, static_cast<float> (x), (float)y + 0.5f, slider.findColour(Slider::trackColourId), sliderPos - (float)x, (float)height - 1.0f, true)));
             g.setFillType(*gradient);
 
-            g.fillRect(slider.isHorizontal() ? Rectangle<float>(static_cast<float> (x), (float)y + 0.5f, sliderPos - (float)x, (float)height - 1.0f)
+            g.fillRect(slider.isHorizontal() ? Rectangle<float>(static_cast<float> (x), (float)y + 0.5f, juce::jmax(5.0f-(float)x ,sliderPos - (float)x), (float)height - 1.0f)
                 : Rectangle<float>((float)x + 0.5f, sliderPos, (float)width - 1.0f, (float)y + ((float)height - sliderPos)));
 
            

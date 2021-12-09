@@ -99,7 +99,8 @@ public:
         slider.setScrollWheelEnabled(false);
         addAndMakeVisible(slider);
 
-        valueLabel.setColour(juce::Label::outlineColourId, slider.findColour(juce::Slider::textBoxOutlineColourId));
+        //valueLabel.setColour(juce::Label::outlineColourId, slider.findColour(juce::Slider::textBoxOutlineColourId));
+        valueLabel.setColour(juce::Label::outlineColourId, juce::Colours::transparentWhite);
         valueLabel.setColour(juce::Label::textColourId, juce::Colours::cyan);
         valueLabel.setBorderSize({ 1, 1, 1, 1 });
         valueLabel.setJustificationType(juce::Justification::centred);
@@ -1084,7 +1085,9 @@ AarrowAudioProcessorEditor::AarrowAudioProcessorEditor(NewProjectAudioProcessor&
     //addAndMakeVisible(new ParameterDisplayComponent(processor,*audioProcessor.sync));//////>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
     //AarrowLookAndFeel* Aalf = new AarrowLookAndFeel();
+    
     setLookAndFeel(&Aalf);
+    LookAndFeel::getDefaultLookAndFeel().setDefaultSansSerifTypefaceName("Avenir Next");
     setSize(pimpl->view.getViewedComponent()->getWidth() + pimpl->view.getVerticalScrollBar().getWidth(),
         juce::jmin(pimpl->view.getViewedComponent()->getHeight(), 400));
 
