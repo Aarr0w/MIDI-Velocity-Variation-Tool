@@ -1030,11 +1030,11 @@ struct AarrowAudioProcessorEditor::Pimpl
         auto SkewSlider = dynamic_cast<SliderParameterComponent*>(Panel4->findChildWithID("-skewComp")->findChildWithID("ActualComponent"));
         SkewSlider->changeSliderStyle(2);
 
-        fullPanel = new juce::Component();
+     /*   fullPanel = new juce::Component();
         fullPanel->setSize(500, myPanel->getHeight());
         fullPanel->addAndMakeVisible(myPanel);
         Panel4->setBounds(fullPanel->getLocalBounds().removeFromRight(100));
-        fullPanel->addAndMakeVisible(Panel4);
+        fullPanel->addAndMakeVisible(Panel4);*/
 
 
         /*for (auto* comp : myPanel->getChildren())
@@ -1045,7 +1045,8 @@ struct AarrowAudioProcessorEditor::Pimpl
         //SyncComp->getParameterComp<BooleanButtonParameterComponent>()->setLink(*SpeedComp->findChildWithID("ActualComponent"));
 
         params.clear();
-        view.setViewedComponent(fullPanel);
+       // view.setViewedComponent(fullPanel);
+        view.setViewedComponent(myPanel);
         owner.addAndMakeVisible(view);
 
         view.setScrollBarsShown(true, false);
@@ -1053,7 +1054,7 @@ struct AarrowAudioProcessorEditor::Pimpl
 
     ~Pimpl()
     {
-        fullPanel->removeAllChildren();
+        //fullPanel->removeAllChildren();
         view.setViewedComponent(nullptr, false);
     }
 
@@ -1066,7 +1067,7 @@ struct AarrowAudioProcessorEditor::Pimpl
 
     //==============================================================================
     AarrowAudioProcessorEditor& owner;
-    juce::Component* fullPanel;
+    //juce::Component* fullPanel;
     juce::Array<juce::AudioProcessorParameter*> params;
     juce::Viewport view;
 
