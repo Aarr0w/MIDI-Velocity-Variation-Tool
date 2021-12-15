@@ -24,12 +24,12 @@ NewProjectAudioProcessor::NewProjectAudioProcessor()
 {
 
     addParameter(range = new juce::AudioParameterInt("range", "-range", 0,127 , 10));
-    addParameter(skew = new juce::AudioParameterInt("depth", "-skew", 0,5,0));
+    addParameter(skew = new juce::AudioParameterInt("depth", "-skew", 0,5,5));
     addParameter(baseValue = new juce::AudioParameterInt("baseValue", "-", 0,127,84));
 
 
     addParameter(base = new juce::AudioParameterChoice("base", "bBase", {"AUTO","BASE VALUE :"}, 0));
-    addParameter(direction = new juce::AudioParameterChoice("direction", "-Direction", {"Up","Cntrd","Dwn"}, 0));
+    addParameter(direction = new juce::AudioParameterChoice("direction", "-Direction", {"Up","Centred","Down"}, 0));
 
 
 }

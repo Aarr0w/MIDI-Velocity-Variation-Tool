@@ -120,7 +120,7 @@ public:
     {
         auto area = getLocalBounds().reduced(0, 10);
 
-        valueLabel.setBounds(area.removeFromRight(80));
+        valueLabel.setBounds(area.removeFromRight(getWidth()/4));
 
         area.removeFromLeft(6);
         slider.setBounds(area);
@@ -147,18 +147,15 @@ public:
     {
         if (!on)
         {
-          
-            slider.setColour(juce::Slider::trackColourId, getLookAndFeel().findColour(juce::Slider::trackColourId).withSaturation(0.1f));
+            slider.setColour(juce::Slider::trackColourId, juce::Colours::slategrey.withBrightness(0.5f));
             slider.setColour(juce::Slider::thumbColourId, juce::Colours::grey);
             valueLabel.setColour(juce::Label::textColourId, juce::Colours::grey);
-            slider.setColour(juce::Slider::textBoxOutlineColourId, getLookAndFeel().findColour(juce::Slider::textBoxOutlineColourId).withSaturation(0.1f));
         }
         else
         {
             slider.setColour(juce::Slider::trackColourId, getLookAndFeel().findColour(juce::Slider::trackColourId));
             slider.setColour(juce::Slider::thumbColourId, getLookAndFeel().findColour(juce::Slider::thumbColourId));
             valueLabel.setColour(juce::Label::textColourId, getLookAndFeel().findColour(juce::Label::textColourId));
-            slider.setColour(juce::Slider::textBoxOutlineColourId, getLookAndFeel().findColour(juce::Slider::textBoxOutlineColourId));
         }
     }
 
@@ -212,7 +209,6 @@ private:
     juce::Label valueLabel;
     bool isDragging = false;
     bool bpm = false;
-    int f;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SliderParameterComponent)
 };
@@ -748,18 +744,11 @@ public:
         link = NULL;
 
         const juce::Array<juce::AudioProcessorParameter*>& p = processor.getParameters();
-        // substring removes first char indicator (for switch component, circular/horizontal slider etc)
-        if (!parameter.isBoolean() && parameter.getAllValueStrings().size() < 2)
-            parameterName.setText(parameter.getName(128).substring(1), juce::dontSendNotification);
-        parameterName.setJustificationType(juce::Justification::centredRight);
-        addAndMakeVisible(parameterName);
 
-        parameterLabel.setText(parameter.getLabel(), juce::dontSendNotification);
-        addAndMakeVisible(parameterLabel);
+        //parameterLabel.setText(parameter.getLabel(), juce::dontSendNotification);
+        //addAndMakeVisible(parameterLabel);
 
-        //addAndMakeVisible(*(parameterComp = createParameterComp(processor)));
         parameterComp = createParameterComp(processor);
-        //addAndMakeVisible(parameterComp.get()); 
         addChildAndSetID(parameterComp.get(), "ActualComponent");
         actualComp = parameterComp.get();
 
@@ -773,18 +762,54 @@ public:
 
     void paint(juce::Graphics&) override {}
 
-    void displayParameterName()
+    void displayParameterName(juce::Justification just)
     {
-        parameterName.setText(parameter.getName(128), juce::dontSendNotification);
-        parameterName.setJustificationType(juce::Justification::centredRight);
+        // substring removes first char indicator (for switch component, circular/horizontal slider etc)
+        if (just == juce::Justification::centredBottom || just == juce::Justification::bottom)
+            justName = 'b';
+        if (just == juce::Justification::centredRight || just == juce::Justification::right)
+            justName = 'r';
+        if (just == juce::Justification::centredTop || just == juce::Justification::top)
+            justName = 't';
+        if (just == juce::Justification::centredLeft || just == juce::Justification::left)
+            justName = 'l';
+
+        parameterName.setText(parameter.getName(128).substring(1), juce::dontSendNotification);
+        parameterName.setJustificationType(just);
         addAndMakeVisible(parameterName);
     }
+
+    void displayParameterLabel(juce::Justification just)
+    {
+        // substring removes first char indicator (for switch component, circular/horizontal slider etc)
+        if (just == juce::Justification::centredBottom || just == juce::Justification::bottom)
+            justLabel = 'B';
+        if (just == juce::Justification::centredRight || just == juce::Justification::right)
+            justLabel = 'R';
+        if (just == juce::Justification::centredTop || just == juce::Justification::top)
+            justLabel = 'T';
+        if (just == juce::Justification::centredLeft || just == juce::Justification::left)
+            justLabel = 'L';
+
+        parameterLabel.setText(parameter.getLabel(), juce::dontSendNotification);
+        parameterLabel.setJustificationType(just);
+        addAndMakeVisible(parameterLabel);
+    }
+
     void resized() override
     {
         auto area = getLocalBounds();
 
-        //parameterName.setBounds(area.removeFromLeft(100));
-        parameterName.setBounds(area.removeFromLeft(getWidth() / 4));
+        switch (justName)
+        {
+            case 'l': parameterName.setBounds(area.removeFromLeft(getWidth() / 4));  break;
+            case 't': parameterName.setBounds(area.removeFromTop(getHeight() / 4));  break;
+            case 'r': parameterName.setBounds(area.removeFromRight(getWidth() / 4));  break;
+            case 'b': parameterName.setBounds(area.removeFromBottom(getHeight() / 4));  break;
+            default : parameterName.setBounds(area.removeFromLeft(getWidth() / 4));
+        }
+           
+        
         //parameterLabel.setBounds(area.removeFromRight(50));
         if (paramWidth == 400) // basically... if parentpanel is horizontal
             parameterLabel.setBounds(area.removeFromRight(getWidth() / 8));
@@ -817,6 +842,8 @@ private:
     juce::Label parameterName, parameterLabel;
     juce::Component* actualComp;
     juce::Component* link;
+    char justName = 'l';
+    char justLabel = 'r';
     int paramWidth;
     std::unique_ptr<Component> parameterComp;
 
@@ -925,7 +952,7 @@ public:
         return horizontal;
     }
 
-    void setOutliine(bool o)
+    void setOutline(bool o)
     {
         outline = o;
     }
@@ -972,7 +999,6 @@ private:
 
 //==============================================================================>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-//=============================================================================
 
 struct AarrowAudioProcessorEditor::Pimpl
 {
@@ -995,7 +1021,7 @@ struct AarrowAudioProcessorEditor::Pimpl
         ParametersPanel* myPanel = new ParametersPanel(owner.audioProcessor, params, false);
 
         //myPanel->setSize(400, 100);
-        
+        dynamic_cast<ParameterDisplayComponent*> (myPanel->findChildWithID("-rangeComp"))->displayParameterName(juce::Justification::centredRight);
         auto RangeSlider = dynamic_cast<SliderParameterComponent*>(myPanel->findChildWithID("-rangeComp")->findChildWithID("ActualComponent"));
         RangeSlider->setSize(RangeSlider->getWidth() + 50, RangeSlider->getHeight());
         RangeSlider->changeSliderStyle(3);
@@ -1020,22 +1046,34 @@ struct AarrowAudioProcessorEditor::Pimpl
         auto area = BaseSlider->getLocalBounds();
         area.setLeft(BaseSlider->getX() - 40);
         BaseSlider->setBounds(area);
-
+        
+        BaseSlider->changeSliderStyle(3);
         BaseButton->setLink(*BaseSlider);
         BaseSlider->linkAction(false);
+      
         // -----------------------------------------------------------------------------------
-
+ 
         params.clear();
         params.add(owner.audioProcessor.skew);
-        ParametersPanel* Panel4 = new ParametersPanel(owner.audioProcessor, params, false);
+        ParametersPanel* Panel4 = new ParametersPanel(owner.audioProcessor, params, true);      
+        Panel4->findChildWithID("-skewComp")->setSize(100, 120);
         auto SkewSlider = dynamic_cast<SliderParameterComponent*>(Panel4->findChildWithID("-skewComp")->findChildWithID("ActualComponent"));
-        SkewSlider->changeSliderStyle(2);
-
-     /*   fullPanel = new juce::Component();
+        dynamic_cast<ParameterDisplayComponent*> (Panel4->findChildWithID("-skewComp"))->displayParameterName(juce::Justification::centredBottom);
+        SkewSlider->changeSliderStyle(1);
+        Panel4->setSize(100, 120);
+        //SkewSlider->setSize(90, 90);
+        //Panel4->setSize(100,120);
+     
+     
+        // ---------------------------------------------------------------------------------------------
+        fullPanel = new juce::Component();
         fullPanel->setSize(500, myPanel->getHeight());
         fullPanel->addAndMakeVisible(myPanel);
+        fullPanel->addAndMakeVisible(Panel4);
         Panel4->setBounds(fullPanel->getLocalBounds().removeFromRight(100));
-        fullPanel->addAndMakeVisible(Panel4);*/
+       
+        
+        
 
 
         /*for (auto* comp : myPanel->getChildren())
@@ -1046,8 +1084,8 @@ struct AarrowAudioProcessorEditor::Pimpl
         //SyncComp->getParameterComp<BooleanButtonParameterComponent>()->setLink(*SpeedComp->findChildWithID("ActualComponent"));
 
         params.clear();
-       // view.setViewedComponent(fullPanel);
-        view.setViewedComponent(myPanel);
+        view.setViewedComponent(fullPanel);
+       // view.setViewedComponent(myPanel);
         owner.addAndMakeVisible(view);
 
         view.setScrollBarsShown(true, false);
@@ -1068,7 +1106,7 @@ struct AarrowAudioProcessorEditor::Pimpl
 
     //==============================================================================
     AarrowAudioProcessorEditor& owner;
-    //juce::Component* fullPanel;
+    juce::Component* fullPanel;
     juce::Array<juce::AudioProcessorParameter*> params;
     juce::Viewport view;
 
