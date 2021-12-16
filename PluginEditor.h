@@ -158,7 +158,7 @@ public:
                :  Rectangle<float>((float)x + 0.5f,sliderPos, (float)width - 1.0f, (float)y + ((float)height - sliderPos)));
             g.setColour(slider.findColour(Slider::trackColourId));
      
-
+  
             g.setColour(findColour(PropertyComponent::backgroundColourId));
             y -= 5;
              for (float n = y; n < y + height; n += height/5) // might want to manually change this '5' for different value sliders, 

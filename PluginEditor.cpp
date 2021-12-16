@@ -120,7 +120,10 @@ public:
     {
         auto area = getLocalBounds().reduced(0, 10);
 
-        valueLabel.setBounds(area.removeFromRight(getWidth()/4));
+        if(slider.isHorizontal())
+            valueLabel.setBounds(area.removeFromRight(getWidth()/4));
+        else
+            valueLabel.setBounds(area.removeFromTop(10));
 
         area.removeFromLeft(6);
         slider.setBounds(area);
@@ -765,8 +768,8 @@ public:
     void displayParameterName(juce::Justification just)
     {
         // substring removes first char indicator (for switch component, circular/horizontal slider etc)
-        if (just == juce::Justification::centredBottom || just == juce::Justification::bottom)
-            justName = 'b';
+        if (just == juce::Justification::centredBottom || just == juce::Justification::bottom || just == juce::Justification::bottomLeft || just == juce::Justification::bottomRight)
+            justName = 'b'; 
         if (just == juce::Justification::centredRight || just == juce::Justification::right)
             justName = 'r';
         if (just == juce::Justification::centredTop || just == juce::Justification::top)
@@ -803,10 +806,10 @@ public:
         switch (justName)
         {
             case 'l': parameterName.setBounds(area.removeFromLeft(getWidth() / 4));  break;
-            case 't': parameterName.setBounds(area.removeFromTop(getHeight() / 4));  break;
+            case 't': parameterName.setBounds(area.removeFromTop(getHeight() / 8));  break;
             case 'r': parameterName.setBounds(area.removeFromRight(getWidth() / 4));  break;
-            case 'b': parameterName.setBounds(area.removeFromBottom(getHeight() / 4));  break;
-            default : parameterName.setBounds(area.removeFromLeft(getWidth() / 4));
+            case 'b': parameterName.setBounds(area.removeFromBottom(getHeight() / 8));  break;
+           // default : parameterName.setBounds(area.removeFromLeft(getWidth() / 4));
         }
            
         
@@ -893,6 +896,7 @@ public:
     {
         if (horizontal)
             paramWidth = 400 / parameters.size();
+
         paramHeight = 40;
         outline = false;
 
@@ -1056,12 +1060,15 @@ struct AarrowAudioProcessorEditor::Pimpl
         params.clear();
         params.add(owner.audioProcessor.skew);
         ParametersPanel* Panel4 = new ParametersPanel(owner.audioProcessor, params, true);      
-        Panel4->findChildWithID("-skewComp")->setSize(100, 120);
+        //Panel4->findChildWithID("-skewComp")->setSize(100, 120);
         auto SkewSlider = dynamic_cast<SliderParameterComponent*>(Panel4->findChildWithID("-skewComp")->findChildWithID("ActualComponent"));
-        dynamic_cast<ParameterDisplayComponent*> (Panel4->findChildWithID("-skewComp"))->displayParameterName(juce::Justification::centredBottom);
+        dynamic_cast<ParameterDisplayComponent*> (Panel4->findChildWithID("-skewComp"))->displayParameterName(juce::Justification::bottomLeft);
         SkewSlider->changeSliderStyle(1);
         Panel4->setSize(100, 120);
-        //SkewSlider->setSize(90, 90);
+        SkewSlider->setSize(SkewSlider->getWidth()/2, SkewSlider->getHeight()+10);
+        area = SkewSlider->getLocalBounds();
+        area.translate(-5, 0);
+        SkewSlider->setBounds(area);
         //Panel4->setSize(100,120);
      
      
