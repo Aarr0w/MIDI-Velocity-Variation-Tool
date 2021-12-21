@@ -162,6 +162,16 @@ public:
         }
     }
 
+    void setSliderSkew(float f)
+    {
+        slider.setSkewFactor(f);
+    }
+
+     void setSliderTooltip(juce::String s)
+    {
+        slider.setTooltip(s);
+    }
+
 
 private:
     void updateTextDisplay()
@@ -1025,9 +1035,10 @@ struct AarrowAudioProcessorEditor::Pimpl
         ParametersPanel* myPanel = new ParametersPanel(owner.audioProcessor, params, false);
 
         //myPanel->setSize(400, 100);
-        dynamic_cast<ParameterDisplayComponent*> (myPanel->findChildWithID("-rangeComp"))->displayParameterName(juce::Justification::centredRight);
-        auto RangeSlider = dynamic_cast<SliderParameterComponent*>(myPanel->findChildWithID("-rangeComp")->findChildWithID("ActualComponent"));
+        dynamic_cast<ParameterDisplayComponent*> (myPanel->findChildWithID("-RANGEComp"))->displayParameterName(juce::Justification::centredRight);
+        auto RangeSlider = dynamic_cast<SliderParameterComponent*>(myPanel->findChildWithID("-RANGEComp")->findChildWithID("ActualComponent"));
         RangeSlider->setSize(RangeSlider->getWidth() + 50, RangeSlider->getHeight());
+        RangeSlider->setSliderSkew(0.65f);
         RangeSlider->changeSliderStyle(3);
 
         // -------------------------------------------------------------------------------
@@ -1037,7 +1048,7 @@ struct AarrowAudioProcessorEditor::Pimpl
         ParametersPanel* Panel3 = new ParametersPanel(owner.audioProcessor, params, true);
         myPanel->addPanel(Panel3);
 
-        // ----------------------------------------------------------------------------------
+        //// ----------------------------------------------------------------------------------
         params.clear();
         params.add(owner.audioProcessor.base);
         params.add(owner.audioProcessor.baseValue);
@@ -1045,6 +1056,8 @@ struct AarrowAudioProcessorEditor::Pimpl
         myPanel->addPanel(Panel2);
         auto BaseButton = dynamic_cast<SwitchButtonParameterComponent*>(Panel2->findChildWithID("bBaseComp")->findChildWithID("ActualComponent"));
         auto BaseSlider = dynamic_cast<SliderParameterComponent*>(Panel2->findChildWithID("-Comp")->findChildWithID("ActualComponent"));
+
+        BaseSlider->setSliderSkew(0.65f);
 
         BaseSlider->setSize(BaseSlider->getWidth() + 50, BaseSlider->getHeight());
         auto area = BaseSlider->getLocalBounds();
@@ -1055,19 +1068,22 @@ struct AarrowAudioProcessorEditor::Pimpl
         BaseButton->setLink(*BaseSlider);
         BaseSlider->linkAction(false);
       
-        // -----------------------------------------------------------------------------------
+        //// -----------------------------------------------------------------------------------
  
+
+                // 2 SliderParameterComponent leaks disappear when panel4 is added to myPanel instead...
         params.clear();
         params.add(owner.audioProcessor.skew);
-        ParametersPanel* Panel4 = new ParametersPanel(owner.audioProcessor, params, true);      
+        ParametersPanel* Panel4 = new ParametersPanel(owner.audioProcessor, params, true);     
         //Panel4->findChildWithID("-skewComp")->setSize(100, 120);
-        auto SkewSlider = dynamic_cast<SliderParameterComponent*>(Panel4->findChildWithID("-skewComp")->findChildWithID("ActualComponent"));
-        dynamic_cast<ParameterDisplayComponent*> (Panel4->findChildWithID("-skewComp"))->displayParameterName(juce::Justification::bottomLeft);
+        auto SkewSlider = dynamic_cast<SliderParameterComponent*>(Panel4->findChildWithID("-INTENSITYComp")->findChildWithID("ActualComponent"));
+        dynamic_cast<ParameterDisplayComponent*> (Panel4->findChildWithID("-INTENSITYComp"))->displayParameterName(juce::Justification::bottomLeft);
         SkewSlider->changeSliderStyle(1);
         Panel4->setSize(100, 120);
         SkewSlider->setSize(SkewSlider->getWidth()/2, SkewSlider->getHeight()+10);
         area = SkewSlider->getLocalBounds();
-        area.translate(-5, 0);
+        area.translate(10, 0);
+        SkewSlider->setSliderTooltip("Alters the likelihood of larger values from RANGE. At the highest setting it will only choose between 0 and the highest value in RANGE");
         SkewSlider->setBounds(area);
         //Panel4->setSize(100,120);
      
@@ -1092,8 +1108,9 @@ struct AarrowAudioProcessorEditor::Pimpl
 
         params.clear();
         view.setViewedComponent(fullPanel);
-       // view.setViewedComponent(myPanel);
+        //view.setViewedComponent(myPanel);
         owner.addAndMakeVisible(view);
+        owner.addAndMakeVisible(tooltipWindow);
 
         view.setScrollBarsShown(true, false);
     }
@@ -1116,6 +1133,8 @@ struct AarrowAudioProcessorEditor::Pimpl
     juce::Component* fullPanel;
     juce::Array<juce::AudioProcessorParameter*> params;
     juce::Viewport view;
+private : 
+    TooltipWindow tooltipWindow;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Pimpl)
 };
@@ -1132,7 +1151,6 @@ AarrowAudioProcessorEditor::AarrowAudioProcessorEditor(NewProjectAudioProcessor&
     //AarrowLookAndFeel* Aalf = new AarrowLookAndFeel();
     
     setLookAndFeel(&Aalf);
-    LookAndFeel::getDefaultLookAndFeel().setDefaultSansSerifTypefaceName("Avenir Next");
     setSize(pimpl->view.getViewedComponent()->getWidth() + pimpl->view.getVerticalScrollBar().getWidth(),
         juce::jmin(pimpl->view.getViewedComponent()->getHeight(), 400));
 

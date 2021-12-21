@@ -117,14 +117,13 @@ public:
             x += edge;
             y -= edge;
 
-            auto gradient = new ColourGradient(juce::Colours::white, static_cast<float> (x), (float)y + 0.5f, slider.findColour(Slider::trackColourId), sliderPos - (float)x, (float)height - 1.0f, true);
+            std::unique_ptr<ColourGradient> gradient(new ColourGradient(juce::Colours::white, static_cast<float> (x), (float)y + 0.5f, slider.findColour(Slider::trackColourId), sliderPos - (float)x, (float)height - 1.0f, true));
             //gradient->addColour(0.5f, juce::Colours::grey);
-                    
-            g.setFillType(*(new FillType(*gradient)));
+            std::unique_ptr<FillType> phil(new FillType(*gradient));                
+            g.setFillType(*phil);
 
             g.fillRect(slider.isHorizontal() ? Rectangle<float>(static_cast<float> (x), (float)y + 0.5f, juce::jmax(5.0f-(float)x ,sliderPos - (float)x), (float)height - 1.0f)
                 : Rectangle<float>((float)x + 0.5f, (float)y-sliderPos, (float)width - 1.0f, (float)y + ((float)height - sliderPos)));
-
            
         }
         else
@@ -148,9 +147,13 @@ public:
 
             sliderPos += 7; //sliderPos would reach the top of the background rectangle otherwise
                             //slider.proportionOfLengthToValue
-            auto gradient = new ColourGradient(slider.findColour(Slider::thumbColourId) , static_cast<float> (x), (float)y + 0.5f, slider.findColour(Slider::trackColourId), static_cast<float> (x), (float)height - 1.0f, false);
-            gradient->addColour(0.5f, juce::Colours::grey);
-            g.setFillType(*(new FillType(*gradient)));
+                            // 
+            std::unique_ptr<ColourGradient> gradient(new ColourGradient(slider.findColour(Slider::thumbColourId), static_cast<float> (x), (float)y + 0.5f, slider.findColour(Slider::trackColourId), static_cast<float> (x), (float)height - 1.0f, false));
+            std::unique_ptr<FillType> phil(new FillType(*gradient));            //gradient = new ColourGradient(slider.findColour(Slider::thumbColourId) , static_cast<float> (x), (float)y + 0.5f, slider.findColour(Slider::trackColourId), static_cast<float> (x), (float)height - 1.0f, false);
+            //gradient->addColour(0.5f, juce::Colours::grey);
+            g.setFillType(*phil);
+            //g.setFillType(*(new FillType(*gradient)));
+            //g.setColour(findColour(Slider::trackColourId));
 
             //Rectangel.withSizeKeepingCentre() might also be useful for the gradient rectangle
 
@@ -163,11 +166,11 @@ public:
             y -= 5;
              for (float n = y; n < y + height; n += height/5) // might want to manually change this '5' for different value sliders, 
             {                                                 // current class doesnt have acces to the actual value of the parameter 
-                g.fillRect((float)x , n, (float)width, 6.0f);
+                g.fillRect((float)x , n, (float)width, 5.0f);
             }
            
              //need to make this if/else and add horizontal version
-
+      
         }
     }
 

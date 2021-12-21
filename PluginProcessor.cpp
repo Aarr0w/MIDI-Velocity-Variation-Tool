@@ -23,8 +23,8 @@ NewProjectAudioProcessor::NewProjectAudioProcessor()
 #endif
 {
 
-    addParameter(range = new juce::AudioParameterInt("range", "-range", 0,127 , 10));
-    addParameter(skew = new juce::AudioParameterInt("depth", "-skew", 0,5,5));
+    addParameter(range = new juce::AudioParameterInt("range", "-RANGE", 0,127 , 10));
+    addParameter(skew = new juce::AudioParameterInt("depth", "-INTENSITY", 0,5,1));
     addParameter(baseValue = new juce::AudioParameterInt("baseValue", "-", 0,127,84));
 
 
@@ -164,21 +164,21 @@ void NewProjectAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, ju
 
         if (msg.isNoteOn())
         {
-            auto velocity = (*base)? 
-                msg.getVelocity() :
-                (*baseValue);
+            auto velocity = (*base) ?
+                (*baseValue) :
+                msg.getVelocity();
 
             auto a = direction->getAllValueStrings();
             auto rand = juce::Random::getSystemRandom().nextInt(*range);
 
             if (*skew == 5)
             {
-                rand = (juce::Random::getSystemRandom().nextInt(1) == 0) ?  0 : *range;
+                rand = (juce::Random::getSystemRandom().nextInt(2) == 0) ?  0 : *range;
             }
             else
             {
                 for (int x = 0; x < *skew; x++)
-                    rand += juce::Random::getSystemRandom().nextInt((int)*range / 5);
+                    rand = juce::jmin( (int)*range , rand + juce::Random::getSystemRandom().nextInt((int)(*range / 5)) );
             }
            
             
@@ -196,7 +196,7 @@ void NewProjectAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, ju
             }
 
              
-            processedMidi.addEvent(juce::MidiMessage::noteOn(1, msg.getNoteNumber(), velocity), msg.getTimeStamp());
+            processedMidi.addEvent(juce::MidiMessage::noteOn(1, msg.getNoteNumber(), (juce::uint8)velocity), msg.getTimeStamp());
         }
         else if (msg.isNoteOff())
         {
